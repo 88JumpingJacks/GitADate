@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.antoinecampbell.githubuserbrowser.R;
 import com.antoinecampbell.githubuserbrowser.model.User;
+import com.antoinecampbell.githubuserbrowser.service.GithubService;
 
 
 public class DetailActivity extends ActionBarActivity {

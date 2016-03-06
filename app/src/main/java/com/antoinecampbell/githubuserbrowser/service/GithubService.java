@@ -10,17 +10,25 @@ import retrofit.http.Query;
 
 public interface GithubService {
 
-    @GET("/search/users?q=location:NewYork&sort=followers&order=desc")
+    @GET("/search/users?q=location:Kingston&sort=followers&order=desc")
     void getCharlotteUsers(
             @Query("page")
             int page,
             @Query("per_page")
             int perPage, Callback<UsersResponse> callback);
 
+//    @GET("https://api.github.com/users/{{username}}/")
+//    void getUserFollowerCount(
+//            @Query("username")
+//            String username, Callback<UsersResponse> callback);
+
     @GET("/users/{{username}}")
     void getUser(
             @Path("username")
             String username, Callback<User> callback);
-
-//    @GET("/users/{{username}}")
+//
+//    @GET("/repos/:owner/:repo/stats/commit_activity")
+//    void getCommits(
+//            @Query("owner")
+//            String owner, Callback<UsersResponse> callback);
 }

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.antoinecampbell.githubuserbrowser.R;
 import com.antoinecampbell.githubuserbrowser.model.User;
+import com.antoinecampbell.githubuserbrowser.service.GithubService;
 import com.antoinecampbell.githubuserbrowser.service.ServiceUtils;
 
 import com.squareup.okhttp.Call;
@@ -64,7 +65,7 @@ public class DetailFragment extends Fragment {
         Log.i("args", "URL " + user.getUrl());
         Log.i("args", "login " + user.getLogin());
         Log.i("args", "# Repos " + user.getPublicRepos());
-//        Log.i("args", "Followers " + user.getFollowers());
+        Log.i("args", "Followers " + user.getFollowers());
         Log.i("args", "FollowersURL " + user.getFollowersUrl());
 //        Log.i("args", " " + user.getU());
 //        Log.i("args", "Projects " + user.);
@@ -131,6 +132,33 @@ public class DetailFragment extends Fragment {
             }
         });
 
+
+        request = new Request.Builder()
+                .url("https://api.github.com/users/" + user.getLogin())
+                .build();
+
+        call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                try
+                {
+                    String jsonString = response.body().string();
+                    JSONObject jo = new JSONObject(jsonString);
+                    Log.i("args", "# followers " + jo.optInt("followers"));
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         fragment.setArguments(args);
 
         return fragment;
@@ -154,6 +182,9 @@ public class DetailFragment extends Fragment {
         int imageSize = getActivity().getResources().getInteger(R.integer.cardview_iamge_size);
         Uri imageUri = ServiceUtils.getSizedImageUri(getActivity(), user.getAvatarUrl(), imageSize);
         picasso.load(imageUri).into(avatarImageView);
+//
+//        GithubService githubService = ServiceUtils.getGithubService(getActivity());
+//        githubService.getCommits(user.toString(), this);
 
         return view;
     }
