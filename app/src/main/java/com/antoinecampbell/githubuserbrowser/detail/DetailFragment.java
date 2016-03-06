@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.antoinecampbell.githubuserbrowser.R;
 import com.antoinecampbell.githubuserbrowser.model.User;
-import com.antoinecampbell.githubuserbrowser.service.GithubService;
 import com.antoinecampbell.githubuserbrowser.service.ServiceUtils;
 
 import com.squareup.okhttp.Call;
@@ -30,10 +29,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -47,9 +43,14 @@ public class DetailFragment extends Fragment {
 
     private static final String KEY_ARG_USER = "KEY_ARG_USER";
     private User user;
-
+    private static int followers;
+    private static List<String> languagesList;
     @InjectView(R.id.fragment_detail_avatar_imageview)
     ImageView avatarImageView;
+
+    @InjectView(R.id.followersid) TextView txtVw_followers;
+
+    @InjectView(R.id.languagesid) TextView txtVw_languages;
 
     public static DetailFragment newInstance(User user) {
         Log.i("args", "in newInstance() method!!!");
@@ -85,7 +86,7 @@ public class DetailFragment extends Fragment {
             @Override
             public void onResponse(Response response) throws IOException {
                 List<String> names = new ArrayList<String>(0);
-                Set<String> languages = new HashSet<String>(0);
+                languagesList = new ArrayList<String>(0);
                 int forks_count = 0;
 
                 try
@@ -108,8 +109,16 @@ public class DetailFragment extends Fragment {
 
                         if (currentLang != null)
                         {
-                            languages.add(currentLang);
+                            languagesList.add(currentLang);
                             Log.i("arg", "language added: " + currentLang);
+                        }
+                    }
+
+                    for (String lang : languagesList)
+                    {
+                        if (lang == null)
+                        {
+                            languagesList.remove(lang);
                         }
                     }
                 }
@@ -121,9 +130,9 @@ public class DetailFragment extends Fragment {
                 Log.i("args", "JSONArray names" + Arrays.toString(names.toArray()));
                 Log.i("args", "forks_count " + forks_count);
 
-                if (languages.size() != 0)
+                if (languagesList.size() != 0)
                 {
-                    Log.i("args", "languages " + Arrays.toString(languages.toArray()));
+                    Log.i("args", "languages " + Arrays.toString(languagesList.toArray()));
                 }
                 else
                 {
@@ -151,6 +160,9 @@ public class DetailFragment extends Fragment {
                     String jsonString = response.body().string();
                     JSONObject jo = new JSONObject(jsonString);
                     Log.i("args", "# followers " + jo.optInt("followers"));
+
+                    followers = jo.optInt("followers");
+
                     Log.i("args", "e-mail " + jo.optString("email"));
                 }
                 catch (JSONException e)
@@ -183,15 +195,38 @@ public class DetailFragment extends Fragment {
         int imageSize = getActivity().getResources().getInteger(R.integer.cardview_iamge_size);
         Uri imageUri = ServiceUtils.getSizedImageUri(getActivity(), user.getAvatarUrl(), imageSize);
         picasso.load(imageUri).into(avatarImageView);
+        txtVw_followers.setText(Integer.toString(followers));
+
+//        String userLangs = "";
+//        Object[] langArray = languagesList.toArray();
+//        for (int i = 0; i < langArray.length; i++)
+//        {
+//            if (langArray[i] != null)
+//            {
+//                userLangs += (String) langArray[i];
+//            }
+//        }
+
+        try
+        {
+            if (languagesList.size() != 0 && languagesList.get(0) != null)
+            {
+                txtVw_languages.setText(languagesList.get(0));
+            }
+            else
+            {
+                txtVw_languages.setText("This user has no preferred language.");
+            }
+        }
+        catch (NullPointerException e)
+        {
+            txtVw_languages.setText("This user has no preferred language.");
+        }
+
 //
 //        GithubService githubService = ServiceUtils.getGithubService(getActivity());
 //        githubService.getCommits(user.toString(), this);
 
         return view;
-    }
-
-    public void setText(String text){
-        TextView textView = (TextView) getView().findViewById(R.id.txt_vw_user_info);
-        textView.setText(text);
     }
 }
