@@ -10,21 +10,54 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/fragment_detail_avatar_imageview"
-            android:layout_width="@dimen/avatar_image_size"
-            android:layout_height="@dimen/avatar_image_size"
-            android:layout_marginBottom="@dimen/avatar_margin"
-            android:background="@drawable/shape_avatar_background"
-            android:contentDescription="@string/avatar_image_content_description"
-            android:scaleType="centerCrop"
-            app:riv_corner_radius="@dimen/corner_radius_avatar"/>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/fragment_detail_avatar_imageview"
+                android:layout_width="@dimen/avatar_image_size"
+                android:layout_height="@dimen/avatar_image_size"
+                android:paddingLeft="0px"
+                android:paddingRight="0px"
+                android:layout_marginRight="40px"
+                android:layout_marginBottom="@dimen/avatar_margin"
+                android:background="@drawable/shape_avatar_background"
+                android:contentDescription="@string/avatar_image_content_description"
+                android:scaleType="centerCrop"
+                app:riv_corner_radius="@dimen/corner_radius_avatar"/>
+
+            <ImageButton
+                android:id="@+id/likeBtn"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_thumb_up_white_24dp"
+                android:background="@drawable/roundcorner"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/email"
+            android:id="@+id/emailid"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/followers"
             android:id="@+id/followersid"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/forks"
+            android:id="@+id/forksid"
             android:layout_gravity="center_horizontal"
             android:padding="10dp" />
 
@@ -39,7 +72,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
+            android:text="@string/projects"
             android:id="@+id/projectsid"
             android:layout_gravity="center_horizontal"
             android:padding="10dp" />

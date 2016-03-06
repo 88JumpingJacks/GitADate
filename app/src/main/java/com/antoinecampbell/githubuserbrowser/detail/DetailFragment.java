@@ -8,8 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.antoinecampbell.githubuserbrowser.R;
 import com.antoinecampbell.githubuserbrowser.model.User;
@@ -43,7 +45,9 @@ public class DetailFragment extends Fragment {
 
     private static final String KEY_ARG_USER = "KEY_ARG_USER";
     private User user;
+    private static int forks;
     private static int followers;
+    private static String email;
     private static List<String> languagesList;
     private static List<String> projectsList = new ArrayList<>();
     @InjectView(R.id.fragment_detail_avatar_imageview)
@@ -54,6 +58,12 @@ public class DetailFragment extends Fragment {
     @InjectView(R.id.languagesid) TextView txtVw_languages;
 
     @InjectView(R.id.projectsid) TextView txtVw_projects;
+
+    @InjectView(R.id.forksid) TextView txtVw_forks;
+
+    @InjectView(R.id.emailid) TextView txtVw_email;
+
+    @InjectView(R.id.likeBtn) ImageButton likeBtn;
 
     public static DetailFragment newInstance(User user) {
         Log.i("args", "in newInstance() method!!!");
@@ -135,6 +145,8 @@ public class DetailFragment extends Fragment {
                 Log.i("args", "JSONArray names" + Arrays.toString(names.toArray()));
                 Log.i("args", "forks_count " + forks_count);
 
+                forks = forks_count;
+
                 if (languagesList.size() != 0)
                 {
                     Log.i("args", "languages " + Arrays.toString(languagesList.toArray()));
@@ -171,6 +183,8 @@ public class DetailFragment extends Fragment {
 
                     Log.i("args", "followers in onResponse " + followers);
                     Log.i("args", "e-mail " + jo.optString("email"));
+
+                    email = jo.optString("email");
                 }
                 catch (JSONException e)
                 {
@@ -202,6 +216,26 @@ public class DetailFragment extends Fragment {
         int imageSize = getActivity().getResources().getInteger(R.integer.cardview_iamge_size);
         Uri imageUri = ServiceUtils.getSizedImageUri(getActivity(), user.getAvatarUrl(), imageSize);
         picasso.load(imageUri).into(avatarImageView);
+
+        // Render like button
+        likeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                Log.v("ImageButton", "Clicked!");
+                if (user.getLogin().equals("luochenhuan") || user.getLogin().equals("88JumpingJacks") || user.getLogin().equals("thomasmetta")) {
+                    Toast.makeText(getActivity(), "You and " + user.getLogin() + " got matched!", Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    Toast.makeText(getActivity(), "You liked " + user.getLogin() + "!" +
+                            " You'll be able to contact them if they like you back.", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+
+
 
         Log.i("args", "***followers " + followers);
         txtVw_followers.setText(getText(R.string.followers) + ": " + followers);
@@ -279,6 +313,17 @@ public class DetailFragment extends Fragment {
             txtVw_projects.setText("No projects to show");
         }
 
+        txtVw_forks.setText(getText(R.string.forks) + ": " + forks);
+
+        if (email != null && !email.isEmpty())
+        {
+            txtVw_email.setText(getText(R.string.email) + ": " + email);
+        }
+        else
+        {
+            txtVw_email.setText(getText(R.string.email) + ": " +
+                    " This user has not provided an e-mail :(");
+        }
 
         return view;
     }
