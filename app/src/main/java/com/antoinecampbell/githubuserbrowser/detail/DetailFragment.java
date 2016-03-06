@@ -45,12 +45,15 @@ public class DetailFragment extends Fragment {
     private User user;
     private static int followers;
     private static List<String> languagesList;
+    private static List<String> projectsList = new ArrayList<>();
     @InjectView(R.id.fragment_detail_avatar_imageview)
     ImageView avatarImageView;
 
     @InjectView(R.id.followersid) TextView txtVw_followers;
 
     @InjectView(R.id.languagesid) TextView txtVw_languages;
+
+    @InjectView(R.id.projectsid) TextView txtVw_projects;
 
     public static DetailFragment newInstance(User user) {
         Log.i("args", "in newInstance() method!!!");
@@ -66,10 +69,10 @@ public class DetailFragment extends Fragment {
         Log.i("args", "URL " + user.getUrl());
         Log.i("args", "login " + user.getLogin());
         Log.i("args", "# Repos " + user.getPublicRepos());
-        Log.i("args", "Followers " + user.getFollowers());
+
+//        Log.i("args", "Followers " + user.getFollowers());
         Log.i("args", "FollowersURL " + user.getFollowersUrl());
 //        Log.i("args", " " + user.getU());
-//        Log.i("args", "Projects " + user.);
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -107,7 +110,7 @@ public class DetailFragment extends Fragment {
 
                         String currentLang = ((JSONObject) ja.get(i)).getString("language");
 
-                        if (currentLang != null)
+                        if (currentLang != null && !languagesList.contains(currentLang))
                         {
                             languagesList.add(currentLang);
                             Log.i("arg", "language added: " + currentLang);
@@ -126,6 +129,8 @@ public class DetailFragment extends Fragment {
                 {
                     e.printStackTrace();
                 }
+
+                projectsList = names;
 
                 Log.i("args", "JSONArray names" + Arrays.toString(names.toArray()));
                 Log.i("args", "forks_count " + forks_count);
@@ -159,10 +164,12 @@ public class DetailFragment extends Fragment {
                 {
                     String jsonString = response.body().string();
                     JSONObject jo = new JSONObject(jsonString);
+                    Log.i("args", "jsonString: " + jsonString);
                     Log.i("args", "# followers " + jo.optInt("followers"));
 
                     followers = jo.optInt("followers");
 
+                    Log.i("args", "followers in onResponse " + followers);
                     Log.i("args", "e-mail " + jo.optString("email"));
                 }
                 catch (JSONException e)
@@ -195,7 +202,9 @@ public class DetailFragment extends Fragment {
         int imageSize = getActivity().getResources().getInteger(R.integer.cardview_iamge_size);
         Uri imageUri = ServiceUtils.getSizedImageUri(getActivity(), user.getAvatarUrl(), imageSize);
         picasso.load(imageUri).into(avatarImageView);
-        txtVw_followers.setText(Integer.toString(followers));
+
+        Log.i("args", "***followers " + followers);
+        txtVw_followers.setText(getText(R.string.followers) + ": " + followers);
 
 //        String userLangs = "";
 //        Object[] langArray = languagesList.toArray();
@@ -209,23 +218,67 @@ public class DetailFragment extends Fragment {
 
         try
         {
-            if (languagesList.size() != 0 && languagesList.get(0) != null)
+            if (languagesList.size() > 0)
             {
-                txtVw_languages.setText(languagesList.get(0));
+                Log.i("args", "***languagesList" + Arrays.toString(languagesList.toArray()));
+
+                String[] langArray = Arrays.copyOf(languagesList.toArray(), languagesList.toArray().length, String[].class);
+                String langStr = "";
+//                for (int i = 0; i < languagesList.size(); i++)
+                for (int i = 0; i < langArray.length; i++)
+                {
+//                    if (languagesList.get(i) != null && i < languagesList.size() - 1)
+                    if (langArray[i] != null && !langArray[i].equals("null") && i < langArray.length - 1)
+                    {
+//                        langStr += languagesList.get(i) + ", ";
+                        langStr += langArray[i] + ", ";
+                    }
+                    else if (langArray[i] != null && !langArray[i].equals("null"))
+                    {
+                        // Last language, don't add a comma after
+//                        langStr += languagesList.get(i);
+                        langStr += langArray[i];
+                    }
+                }
+
+                Log.i("args", "langStr " + langStr);
+                txtVw_languages.setText(getText(R.string.languages) + ": " + langStr);
             }
             else
             {
-                txtVw_languages.setText("This user has no preferred language.");
+                txtVw_languages.setText("This user has no preferred language");
             }
         }
         catch (NullPointerException e)
         {
-            txtVw_languages.setText("This user has no preferred language.");
+            txtVw_languages.setText("This user has no preferred language");
         }
 
-//
-//        GithubService githubService = ServiceUtils.getGithubService(getActivity());
-//        githubService.getCommits(user.toString(), this);
+
+        // Display user's projects
+        String strProjects = "";
+        for (int i = 0; i < projectsList.size(); i++)
+        {
+            if (i < projectsList.size() - 1)
+            {
+                strProjects += projectsList.get(i) + ", ";
+            }
+            else
+            {
+                // Last project, don't print a comma after
+                strProjects += projectsList.get(i);
+            }
+        }
+
+        if (!strProjects.isEmpty())
+        {
+            txtVw_projects.setText(getText(R.string.projects) + ": " + strProjects);
+        }
+        else
+        {
+            txtVw_projects.setText("No projects to show");
+        }
+
 
         return view;
     }
