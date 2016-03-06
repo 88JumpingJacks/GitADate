@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -62,93 +64,14 @@ public class DetailFragment extends Fragment {
         Log.i("args", "URL " + user.getUrl());
         Log.i("args", "login " + user.getLogin());
         Log.i("args", "# Repos " + user.getPublicRepos());
-        Log.i("args", "Followers " + user.getFollowers());
+//        Log.i("args", "Followers " + user.getFollowers());
         Log.i("args", "FollowersURL " + user.getFollowersUrl());
 //        Log.i("args", " " + user.getU());
 //        Log.i("args", "Projects " + user.);
-//
-//        // todo remove
-////        String jsonString = "{[\n" +
-////                "  {\n" +
-////                "    \"id\": 18221276,\n" +
-////                "    \"name\": \"git-consortium\",\n" +
-////                "    \"full_name\": \"octocat/git-consortium\",\n" +
-////                "    \"owner\": {\n" +
-////                "      \"login\": \"octocat\",\n" +
-////                "      \"id\": 583231,\n" +
-////                "      \"avatar_url\": \"https://avatars.githubusercontent.com/u/583231?v=3\",\n" +
-////                "      \"gravatar_id\": \"\",\n" +
-////                "      \"url\": \"https://api.github.com/users/octocat\",\n" +
-////                "      \"html_url\": \"https://github.com/octocat\",\n" +
-////                "      \"followers_url\": \"https://api.github.com/users/octocat/followers\",\n" +
-////                "      \"following_url\": \"https://api.github.com/users/octocat/following{/other_user}\",\n" +
-////                "      \"gists_url\": \"https://api.github.com/users/octocat/gists{/gist_id}\",\n" +
-////                "      \"starred_url\": \"https://api.github.com/users/octocat/starred{/owner}{/repo}\",\n" +
-////                "      \"subscriptions_url\": \"https://api.github.com/users/octocat/subscriptions\",\n" +
-////                "      \"organizations_url\": \"https://api.github.com/users/octocat/orgs\",\n" +
-////                "      \"repos_url\": \"https://api.github.com/users/octocat/repos\",\n" +
-////                "      \"events_url\": \"https://api.github.com/users/octocat/events{/privacy}\",\n" +
-////                "      \"received_events_url\": \"https://api.github.com/users/octocat/received_events\",\n" +
-////                "      \"type\": \"User\",\n" +
-////                "      \"site_admin\": false\n" +
-////                "    }]}";
-//
-//        String jsonString = "{\n" +
-//                "    \"glossary\": {\n" +
-//                "        \"title\": \"example glossary\",\n" +
-//                "\t\t\"GlossDiv\": {\n" +
-//                "            \"title\": \"S\",\n" +
-//                "\t\t\t\"GlossList\": {\n" +
-//                "                \"GlossEntry\": {\n" +
-//                "                    \"ID\": \"SGML\",\n" +
-//                "\t\t\t\t\t\"SortAs\": \"SGML\",\n" +
-//                "\t\t\t\t\t\"GlossTerm\": \"Standard Generalized Markup Language\",\n" +
-//                "\t\t\t\t\t\"Acronym\": \"SGML\",\n" +
-//                "\t\t\t\t\t\"Abbrev\": \"ISO 8879:1986\",\n" +
-//                "\t\t\t\t\t\"GlossDef\": {\n" +
-//                "                        \"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\n" +
-//                "\t\t\t\t\t\t\"GlossSeeAlso\": [\"GML\", \"XML\"]\n" +
-//                "                    },\n" +
-//                "\t\t\t\t\t\"GlossSee\": \"markup\"\n" +
-//                "                }\n" +
-//                "            }\n" +
-//                "        }\n" +
-//                "    }\n" +
-//                "}";
-//
-//        String data = "";
-//        try
-//        {
-//            Log.i("args", "in try");
-//            JSONObject jsonObj = new JSONObject(jsonString);
-//
-//            JSONArray jsonArray = jsonObj.optJSONArray("glossary");
-//
-//            //Iterate the jsonArray and print the info of JSONObjects
-//            for(int i=0; i < jsonArray.length(); i++){
-//                JSONObject jsonObject = jsonArray.getJSONObject(i);
-//
-////                int id = Integer.parseInt(jsonObject.optString("id").toString());
-//                String name = jsonObject.optString("GlossTerm").toString();
-////                float salary = Float.parseFloat(jsonObject.optString("salary").toString());
-//
-////                data += "Node"+i+" : \n id= "+ id +" \n Name= "+ name +" \n Salary= "+ salary +" \n ";
-//                data += name;
-//            }
-//
-//            Log.i("args", "Data" + data);
-//            fragment.setText(data);
-//        }
-//        catch (JSONException e)
-//        {
-//            e.printStackTrace();
-//        }
-
-//        OkHttp.getHttp();
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://api.github.com/users/octocat/repos")
+                .url("https://api.github.com/users/" + user.getLogin() + "/repos")
                 .build();
 
         Call call = client.newCall(request);
@@ -160,7 +83,9 @@ public class DetailFragment extends Fragment {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                List<String> names = new ArrayList<String>();
+                List<String> names = new ArrayList<String>(0);
+                Set<String> languages = new HashSet<String>(0);
+                int forks_count = 0;
 
                 try
                 {
@@ -169,7 +94,22 @@ public class DetailFragment extends Fragment {
                     names = new ArrayList<>();
 
                     for (int i = 0;i<ja.length();i++){
-                        names.add( ((JSONObject) ja.get(i) ).getString("name")  );
+                        names.add(((JSONObject) ja.get(i)).getString("name"));
+
+
+//                        Log.i("args", "forks " + ((JSONObject) ja.get(i)).get("forks"));
+//                        currentFCount = Integer.getInteger(((JSONObject) ja.get(i)).getString("forks_count"));
+
+//                        Log.i("args", "yo" + ((JSONObject) ja.get(i)).get("forks").getClass());
+                        forks_count += (Integer) (((JSONObject) ja.get(i)).get("forks_count"));
+
+                        String currentLang = ((JSONObject) ja.get(i)).getString("language");
+
+                        if (currentLang != null)
+                        {
+                            languages.add(currentLang);
+                            Log.i("arg", "language added: " + currentLang);
+                        }
                     }
                 }
                 catch (JSONException e)
@@ -178,39 +118,18 @@ public class DetailFragment extends Fragment {
                 }
 
                 Log.i("args", "JSONArray names" + Arrays.toString(names.toArray()));
+                Log.i("args", "forks_count " + forks_count);
 
+                if (languages.size() != 0)
+                {
+                    Log.i("args", "languages " + Arrays.toString(languages.toArray()));
+                }
+                else
+                {
+                    Log.i("args", "This user has not listed any languages");
+                }
             }
-
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//
-//                List<String> names = new ArrayList<String>();
-//
-//                try
-//                {
-//                    String jsonString = response.body().toString();
-//                    JSONArray ja = new JSONArray(jsonString);
-//                    names = new ArrayList<>();
-//
-//                    for (int i = 0;i<ja.length();i++){
-//                        names.add( ((JSONObject) ja.get(i) ).getString("name")  );
-//                    }
-//                }
-//                catch (JSONException e)
-//                {
-//                    e.printStackTrace();
-//                }
-//
-//                Log.i("args", Arrays.toString(names.toArray()));
-//            }
         });
-
-
 
         fragment.setArguments(args);
 
