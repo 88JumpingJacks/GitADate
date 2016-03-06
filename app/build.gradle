@@ -1,0 +1,82 @@
+apply plugin: 'com.android.application'
+apply plugin: "sonar-runner"
+
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+    defaultConfig {
+        applicationId "com.antoinecampbell.githubuserbrowser"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        project.ext.set("archivesBaseName", project.parent.name + "-" + versionName + "-" + versionCode)
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        debug {
+            // Added due to library conflict (UIAutomator)
+            android.defaultConfig.minSdkVersion 18
+            debuggable true
+            minifyEnabled false
+            testCoverageEnabled true
+            buildConfigField 'boolean', 'SERVICE_DEBUGGING', 'false'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'boolean', 'SERVICE_DEBUGGING', 'false'
+        }
+    }
+    lintOptions {
+        abortOnError false
+        xmlOutput file("build/outputs/lint-results.xml")
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'LICENSE.txt'
+    }
+}
+
+sonarRunner {
+    sonarProperties {
+        property "sonar.profile", "Android Lint"
+        property "sonar.sources", "src/main/java"
+        property "sonar.java.binaries", "build/intermediates/classes/debug"
+        property "sonar.tests", "src/androidTest/java"
+        property "sonar.projectKey", android.defaultConfig.applicationId
+        property "sonar.projectName", "GithubUserBrowser"
+        property "sonar.projectVersion", android.defaultConfig.versionName
+        property "sonar.projectDescription", "Github User Broswer Android App"
+        property "sonar.junit.reportsPath", "build/outputs/androidTest-results/connected"
+        property "sonar.jacoco.reportPath", "build/outputs/code-coverage/connected/coverage.ec"
+        property "sonar.sourceEncoding", "UTF-8"
+    }
+}
+
+/**
+ * Get the name of the working branch of the project
+ *
+ * @return Name of the working branch
+ */
+def getWorkingBranch() {
+    // Triple double-quotes for the breaklines
+    def workingBranch = """git --git-dir=${rootDir}/../.git
+                               --work-tree=${rootDir}/..
+                               rev-parse --abbrev-ref HEAD""".execute().text.trim()
+    print "Working branch: " + workingBranch
+    return workingBranch
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.squareup.retrofit:converter-jackson:1.9.0'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.squareup.picasso:picasso:2.4.0'
+    compile 'com.makeramen:roundedimageview:2.0.1'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.2.0'
+}
