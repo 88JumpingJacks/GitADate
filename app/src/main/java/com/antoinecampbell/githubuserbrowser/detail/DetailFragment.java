@@ -151,6 +151,7 @@ public class DetailFragment extends Fragment {
                     String jsonString = response.body().string();
                     JSONObject jo = new JSONObject(jsonString);
                     Log.i("args", "# followers " + jo.optInt("followers"));
+                    Log.i("args", "e-mail " + jo.optString("email"));
                 }
                 catch (JSONException e)
                 {
